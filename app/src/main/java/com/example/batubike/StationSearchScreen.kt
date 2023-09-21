@@ -1,8 +1,15 @@
+package com.example.batubike
+
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -29,13 +36,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.example.batubike.ui.theme.BatUbikeTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun StationSearchScreen(modifier: Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(12.dp), contentAlignment = Alignment.Center
+    ) {
         Column {
             Text(text = "")
             Text(
@@ -67,16 +80,18 @@ private fun MySearchBar() {
         label = {
             Text(text = label, color = Color(164, 164, 164))
         },
-        modifier = Modifier.onFocusChanged {
-            if (it.isFocused) label = ""
-            else {
-                if (input.isEmpty())
-                    coroutineScope.launch {
-                        delay(150L) // wait for clearFocus() complete
-                        label = "搜尋站點"
-                    }
-            }
-        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged {
+                if (it.isFocused) label = ""
+                else {
+                    if (input.isEmpty())
+                        coroutineScope.launch {
+                            delay(150L) // wait for clearFocus() complete
+                            label = "搜尋站點"
+                        }
+                }
+            },
         trailingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
@@ -99,9 +114,62 @@ private fun MySearchBar() {
 
 @Composable
 private fun StationList() {
-    LazyColumn(modifier = Modifier.clip(RoundedCornerShape(12.dp))) {
+    val viewModel = StationViewModel()
+    val stations = viewModel.getStations().collectAsLazyPagingItems()
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(12.dp))
+    ) {
+        Row(Modifier.fillMaxWidth().background(Color(171, 195, 62))) {
+            TableCell(text = "縣市", textColor = Color.White)
+            TableCell(text = "區域", textColor = Color.White)
+            TableCell(text = "站點名稱", textColor = Color.White)
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // https://stackoverflow.com/a/76685212/22598753
+            items(
+                count = stations.itemCount,
+                key = stations.itemKey { it.index },
+            ) { i ->
+                val item = stations[i]
+                item?.let {
+                    if (it.index % 2 != 0) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(Color(164, 164, 164))
+                        ) {
+                            TableCell(text = "台北市")
+                            TableCell(text = it.area)
+                            TableCell(text = it.name)
+                        }
+                    } else {
+                        Row(
+                            Modifier.fillMaxWidth()
+                        ) {
+                            TableCell(text = "台北市")
+                            TableCell(text = it.area)
+                            TableCell(text = it.name)
+                        }
+                    }
+
+                }
+
+            }
+        }
     }
+}
+
+@Composable
+private fun RowScope.TableCell(
+    text: String,
+    textColor: Color = Color.Black,
+) {
+    Text(text = text, modifier = Modifier.padding(12.dp), color = textColor)
 }
 
 @Preview(showBackground = true)
