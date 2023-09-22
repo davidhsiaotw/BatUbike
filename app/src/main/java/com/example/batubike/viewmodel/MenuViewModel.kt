@@ -11,7 +11,7 @@ class MenuViewModel : ViewModel() {
         mutableListOf(
             MenuUiState(0, text = "使用說明"),
             MenuUiState(1, text = "收費方式"),
-            MenuUiState(2, text = "站點資訊", color = Color.White),
+            MenuUiState(2, text = "站點資訊", color = Color(101, 115, 37)),
             MenuUiState(3, text = "最新消息"),
             MenuUiState(4, text = "活動專區")
         )
@@ -22,11 +22,11 @@ class MenuViewModel : ViewModel() {
         val updatedList = _menuState.value.mapIndexed { index, menuUiState ->
             when (index) {
                 prevId -> {
-                    menuUiState.copy(color = Color.Black)
+                    menuUiState.copy(color = Color.White)
                 }
 
                 curId -> {
-                    menuUiState.copy(color = Color.White)
+                    menuUiState.copy(color = Color(101, 115, 37))
                 }
 
                 else -> menuUiState

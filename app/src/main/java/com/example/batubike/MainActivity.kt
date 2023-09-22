@@ -12,7 +12,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.batubike.ui.theme.BatUbikeTheme
+import com.example.batubike.viewmodel.MenuViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -20,13 +22,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             var showDrawer by remember { mutableStateOf(false) }
+            val viewModel = viewModel<MenuViewModel>()
             BatUbikeTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    topBar = { UbikeTopBar(onClickShowDrawer = { showDrawer = it }) }
+                    topBar = { UbikeTopBar(showDrawer, onClickShowDrawer = { showDrawer = it }) }
                 ) { contentPadding ->
                     StationSearchScreen(Modifier.padding(contentPadding))
-                    UbikeTopBarDrawer(showDrawer)
+                    UbikeMenu(viewModel, showDrawer, onClickShowDrawer = { showDrawer = !showDrawer})
                 }
             }
         }
