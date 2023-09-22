@@ -1,6 +1,7 @@
 package com.example.batubike
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,13 +10,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -37,18 +42,40 @@ fun UbikeMenu(viewModel: MenuViewModel, show: Boolean, onClickShowDrawer: () -> 
                 .background(Color(171, 195, 62))
         ) {
             Spacer(modifier = Modifier.height(56.dp))
-            LazyColumn {
-                items(menuList) { menu ->
-                    ClickableText(
-                        text = AnnotatedString(menu.text), modifier = Modifier.padding(24.dp),
-                        style = TextStyle(
-                            color = menu.color, fontSize = 24.sp, fontWeight = FontWeight.Bold
-                        ),
-                        onClick = {
-                            viewModel.onClickUpdate(selectedId, menu.id)
-                            selectedId = menu.id
-                            onClickShowDrawer()
-                        })
+            Box(
+                modifier = Modifier
+                    .weight(1F)
+                    .fillMaxSize()
+                    .padding(12.dp)
+            ) {
+                LazyColumn {
+                    items(menuList) { menu ->
+                        ClickableText(
+                            text = AnnotatedString(menu.text), modifier = Modifier.padding(24.dp),
+                            style = TextStyle(
+                                color = menu.color, fontSize = 24.sp, fontWeight = FontWeight.Bold
+                            ),
+                            onClick = {
+                                viewModel.onClickUpdate(selectedId, menu.id)
+                                selectedId = menu.id
+                                onClickShowDrawer()
+                            })
+                    }
+                }
+                Button(
+                    onClick = { },
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .align(Alignment.BottomStart),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color(171, 195, 62)
+                    )
+                ) {
+                    Text(
+                        text = "登入", modifier = Modifier.padding(6.dp),
+                        fontSize = 18.sp, fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
