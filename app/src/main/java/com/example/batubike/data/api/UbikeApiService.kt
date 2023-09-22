@@ -1,5 +1,6 @@
-package com.example.batubike
+package com.example.batubike.data.api
 
+import com.example.batubike.data.model.Station
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Retrofit

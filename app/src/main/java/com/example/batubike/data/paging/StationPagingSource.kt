@@ -1,7 +1,9 @@
-package com.example.batubike
+package com.example.batubike.data.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.example.batubike.data.api.UbikeApiService
+import com.example.batubike.data.model.Station
 import retrofit2.HttpException
 import java.io.IOException
 

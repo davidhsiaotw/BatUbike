@@ -50,7 +50,7 @@ android {
 }
 
 dependencies {
-    val paging_version = "3.2.1"
+    val pagingVersion = "3.2.1"
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -69,8 +69,8 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
 
     // Paging 3
-    implementation("androidx.paging:paging-runtime-ktx:$paging_version")
-    implementation("androidx.paging:paging-compose:$paging_version")
+    implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
+    implementation("androidx.paging:paging-compose:$pagingVersion")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

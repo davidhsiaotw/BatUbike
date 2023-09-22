@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,13 +36,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import com.example.batubike.ui.theme.BatUbikeTheme
+import com.example.batubike.viewmodel.StationViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun StationSearchScreen(modifier: Modifier) {
+    var input by rememberSaveable { mutableStateOf("") }
+    var filter by rememberSaveable { mutableStateOf("") }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -58,17 +59,18 @@ fun StationSearchScreen(modifier: Modifier) {
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(12.dp))
-            MySearchBar()
+            MySearchBar(input, { input = it }, { filter = it })
             Spacer(modifier = Modifier.height(12.dp))
-            StationList()
+            StationList(filter)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MySearchBar() {
-    var input by rememberSaveable { mutableStateOf("") }
+private fun MySearchBar(
+    input: String = "", inputChange: (String) -> Unit, onSearch: (String) -> Unit = {}
+) {
     var label by rememberSaveable { mutableStateOf("搜尋站點") }
     // https://www.geeksforgeeks.org/how-to-clear-focus-of-textfield-in-android-using-jetpack-compose/
     val focusManager = LocalFocusManager.current
@@ -76,7 +78,9 @@ private fun MySearchBar() {
 
     OutlinedTextField(
         value = input,
-        onValueChange = { input = it },
+        onValueChange = { //input = it
+            inputChange(it)
+        },
         label = {
             Text(text = label, color = Color(164, 164, 164))
         },
@@ -100,6 +104,7 @@ private fun MySearchBar() {
             )
         },
         keyboardActions = KeyboardActions(onDone = {
+            onSearch(input)
             focusManager.clearFocus()
         }),
         singleLine = true,
@@ -113,16 +118,21 @@ private fun MySearchBar() {
 }
 
 @Composable
-private fun StationList() {
+private fun StationList(input: String) {
     val viewModel = StationViewModel()
-    val stations = viewModel.getStations().collectAsLazyPagingItems()
+    val stations = viewModel.getStations(input).collectAsLazyPagingItems()
+    var isWhite by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(12.dp))
     ) {
-        Row(Modifier.fillMaxWidth().background(Color(171, 195, 62))) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .background(Color(171, 195, 62))
+        ) {
             TableCell(text = "縣市", textColor = Color.White)
             TableCell(text = "區域", textColor = Color.White)
             TableCell(text = "站點名稱", textColor = Color.White)
@@ -133,11 +143,10 @@ private fun StationList() {
             // https://stackoverflow.com/a/76685212/22598753
             items(
                 count = stations.itemCount,
-                key = stations.itemKey { it.index },
             ) { i ->
                 val item = stations[i]
                 item?.let {
-                    if (it.index % 2 != 0) {
+                    if (i % 2 != 0) {
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -147,6 +156,7 @@ private fun StationList() {
                             TableCell(text = it.area)
                             TableCell(text = it.name)
                         }
+                        isWhite = false
                     } else {
                         Row(
                             Modifier.fillMaxWidth()
@@ -155,7 +165,9 @@ private fun StationList() {
                             TableCell(text = it.area)
                             TableCell(text = it.name)
                         }
+                        isWhite = true
                     }
+
 
                 }
 
@@ -165,7 +177,7 @@ private fun StationList() {
 }
 
 @Composable
-private fun RowScope.TableCell(
+private fun TableCell(
     text: String,
     textColor: Color = Color.Black,
 ) {
@@ -176,6 +188,7 @@ private fun RowScope.TableCell(
 @Composable
 private fun MySearchBarPreview() {
     BatUbikeTheme {
-        MySearchBar()
+        var input by rememberSaveable { mutableStateOf("") }
+        MySearchBar(input, { input = it })
     }
 }

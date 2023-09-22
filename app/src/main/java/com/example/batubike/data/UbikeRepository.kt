@@ -1,7 +1,9 @@
-package com.example.batubike
+package com.example.batubike.data
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import com.example.batubike.data.paging.StationPagingSource
+import com.example.batubike.data.api.UbikeApi
 
 class UbikeRepository {
     val stations = Pager(
