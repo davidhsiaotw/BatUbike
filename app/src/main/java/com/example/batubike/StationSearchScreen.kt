@@ -24,6 +24,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -33,6 +34,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +50,7 @@ fun StationSearchScreen(modifier: Modifier) {
     var input by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableStateOf("") }
     var isSearchBarFocused by rememberSaveable { mutableStateOf(false) }
+    var isSame by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -60,10 +63,14 @@ fun StationSearchScreen(modifier: Modifier) {
                 fontSize = 18.sp, fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(12.dp))
-            MySearchBar(input, {
-                input = it
-                isSearchBarFocused = true   // keep keyword list shown when input changes
-            }, { filter = it }, { isSearchBarFocused = it })
+            MySearchBar(
+                input, inputChange = {
+                    input = it
+                    isSearchBarFocused = true   // keep keyword list shown when input changes
+                },
+                isSame = isSame,
+                onSearch = { filter = it },
+                onFocusChange = { isSearchBarFocused = it })
             Spacer(modifier = Modifier.height(12.dp))
             Box {
                 StationList(filter)
@@ -71,8 +78,9 @@ fun StationSearchScreen(modifier: Modifier) {
                     input = input, show = isSearchBarFocused,
                     onClick = {
                         input = it
+                        isSame = false
                         isSearchBarFocused = false
-                    })
+                    }, onMatch = { isSame = it })
             }
         }
     }
@@ -82,18 +90,20 @@ fun StationSearchScreen(modifier: Modifier) {
 @Composable
 private fun MySearchBar(
     input: String = "", inputChange: (String) -> Unit, onSearch: (String) -> Unit = {},
-    onFocusChange: (Boolean) -> Unit = {}
+    isSame: Boolean = false, onFocusChange: (Boolean) -> Unit = {}
 ) {
     var label by rememberSaveable { mutableStateOf("搜尋站點") }
     // https://www.geeksforgeeks.org/how-to-clear-focus-of-textfield-in-android-using-jetpack-compose/
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
+    val matchTextColor = if (isSame) Color(171, 195, 62) else Color.Black
+    val matchIconColor = if (isSame) Color(171, 195, 62) else Color(164, 164, 164)
 
     OutlinedTextField(
         value = input,
         onValueChange = { //input = it
             inputChange(it)
-        },
+        }, textStyle = TextStyle(color = matchTextColor),
         label = {
             Text(text = label, color = Color(164, 164, 164))
         },
@@ -113,9 +123,8 @@ private fun MySearchBar(
             },
         trailingIcon = {
             Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search Icon",
-                tint = Color(164, 164, 164)
+                imageVector = Icons.Default.Search, contentDescription = "Search Icon",
+                tint = matchIconColor
             )
         },
         keyboardActions = KeyboardActions(onDone = {
@@ -134,7 +143,9 @@ private fun MySearchBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RecommendKeywordList(input: String, show: Boolean, onClick: (String) -> Unit = {}) {
+private fun RecommendKeywordList(
+    input: String, show: Boolean, onClick: (String) -> Unit = {}, onMatch: (Boolean) -> Unit = {}
+) {
     if (show) {
         var defaultKeywords = taipeiAreas.filter {
             it.matches("^.*$input.*$".toRegex())
@@ -150,7 +161,16 @@ private fun RecommendKeywordList(input: String, show: Boolean, onClick: (String)
                     shape = RectangleShape,
                     colors = CardDefaults.cardColors(containerColor = Color(245, 245, 245))
                 ) {
-                    Text(text = area, modifier = Modifier.padding(12.dp), fontSize = 24.sp)
+                    if (input.matches(area.toRegex())) {
+                        Text(
+                            text = area, modifier = Modifier.padding(12.dp),
+                            color = Color(171, 195, 62), fontSize = 24.sp
+                        )
+                        onMatch(true)
+                    } else {
+                        Text(text = area, modifier = Modifier.padding(12.dp), fontSize = 24.sp)
+                        onMatch(false)
+                    }
                 }
             }
         }
