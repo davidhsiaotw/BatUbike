@@ -1,6 +1,7 @@
 package com.example.batubike
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
@@ -37,6 +39,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -191,11 +194,22 @@ private fun StationList(input: String) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(Color(171, 195, 62))
+                .background(Color(171, 195, 62)),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            TableCell(text = "縣市", textColor = Color.White)
-            TableCell(text = "區域", textColor = Color.White)
-            TableCell(text = "站點名稱", textColor = Color.White)
+            val modifier = Modifier.padding(horizontal = 18.dp, vertical = 24.dp)
+            TableCell(
+                text = "  縣市 ", modifier = modifier, fontSize = 18.sp,
+                textColor = Color.White
+            )
+            TableCell(
+                text = " 區域 ", modifier = modifier, fontSize = 18.sp,
+                textColor = Color.White
+            )
+            TableCell(
+                text = "          站點名稱       ", modifier = modifier, fontSize = 18.sp,
+                textColor = Color.White
+            )
         }
         LazyColumn(
             modifier = Modifier.fillMaxSize()
@@ -205,25 +219,28 @@ private fun StationList(input: String) {
                 count = stations.itemCount,
             ) { i ->
                 val item = stations[i]
+                val modifier = Modifier.padding(horizontal = 18.dp, vertical = 24.dp)
                 item?.let {
                     if (i % 2 != 0) {
                         Row(
                             Modifier
                                 .fillMaxWidth()
-                                .background(Color(245, 245, 245))
+                                .background(Color(245, 245, 245)),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            TableCell(text = "台北市")
-                            TableCell(text = it.area)
-                            TableCell(text = it.name)
+                            TableCell(text = "台北市", modifier = modifier)
+                            TableCell(text = it.area, modifier = modifier)
+                            TableCell(text = it.name, modifier = modifier)
                         }
                         isWhite = false
                     } else {
                         Row(
-                            Modifier.fillMaxWidth()
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            TableCell(text = "台北市")
-                            TableCell(text = it.area)
-                            TableCell(text = it.name)
+                            TableCell(text = "台北市", modifier = modifier)
+                            TableCell(text = it.area, modifier = modifier)
+                            TableCell(text = it.name, modifier = modifier)
                         }
                         isWhite = true
                     }
@@ -234,8 +251,20 @@ private fun StationList(input: String) {
 }
 
 @Composable
-private fun TableCell(text: String, textColor: Color = Color.Black) {
-    Text(text = text, modifier = Modifier.padding(12.dp), color = textColor)
+private fun TableCell(
+    text: String, modifier: Modifier = Modifier,
+    fontSize: TextUnit = TextUnit.Unspecified, textColor: Color = Color.Unspecified
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = text, fontSize = fontSize, modifier = modifier,
+            color = textColor
+        )
+    }
+
 }
 
 private val taipeiAreas: List<String> = listOf(
@@ -249,6 +278,47 @@ private fun MySearchBarPreview() {
     BatUbikeTheme {
         var input by rememberSaveable { mutableStateOf("") }
         MySearchBar(input, { input = it })
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TableCellsPreview() {
+    BatUbikeTheme {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color(171, 195, 62)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val modifier = Modifier.padding(horizontal = 18.dp, vertical = 24.dp)
+                TableCell(
+                    text = "  縣市 ", modifier = modifier, fontSize = 18.sp,
+                    textColor = Color.White
+                )
+                TableCell(
+                    text = " 區域 ", modifier = modifier, fontSize = 18.sp,
+                    textColor = Color.White
+                )
+                TableCell(
+                    text = "          站點名稱       ", modifier = modifier, fontSize = 18.sp,
+                    textColor = Color.White
+                )
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color(245, 245, 245)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val modifier = Modifier.padding(horizontal = 18.dp, vertical = 24.dp)
+                TableCell(text = "台北市", modifier)
+                TableCell(text = "大安區", modifier)
+                TableCell(text = "YouBike2.0_捷運黃金便便小樓站", modifier)
+            }
+        }
+
     }
 }
 
